@@ -1,7 +1,7 @@
 # ✅ Task Tracker Application
 
 A full-stack **Task Tracker** built with **Java Spring Boot** (backend) and **React + TypeScript** (frontend).  
-It helps you organize your work into multiple task lists, manage daily goals, and track your progress — all in one simple and elegant web app. ⚡
+It helps you organize your work into multiple task lists, manage daily goals, and track your progress all in one simple and elegant web app. ⚡
 
 ---
 
@@ -22,7 +22,7 @@ It helps you organize your work into multiple task lists, manage daily goals, an
 
 | Layer | Technology |
 |-------|-------------|
-| **Backend** | Java 21 · Spring Boot 3.3.5 · Maven |
+| **Backend** | Java 17 · Spring Boot 3.3.5 · Maven |
 | **Database** | PostgreSQL (Docker-compose) |
 | **Frontend** | React · TypeScript · Vite |
 | **Tools** | ESLint · Node.js (v20.19+) |
