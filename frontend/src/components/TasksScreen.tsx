@@ -168,32 +168,34 @@ const TasksScreen: React.FC = () => {
     <div className="w-full max-w-3xl mx-auto px-4 py-4">
 
       {/* Header */}
-      <div
-        className={`flex ${
-          isMobile ? "flex-col space-y-2 items-center" : "items-center justify-between"
-        } mb-4`}
-      >
-        <div className="flex items-center space-x-3">
-          <Button
-            variant="ghost"
-            aria-label="Go back"
-            onPress={() => navigate("/")}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className={isMobile ? "text-xl font-bold" : "text-2xl font-bold"}>
-            {taskList?.title || "Task List"}
-          </h1>
-        </div>
+      <div className="flex justify-center mb-4 relative">
 
+        {/* Back button */}
+        <Button
+          variant="ghost"
+          aria-label="Go back"
+          onPress={() => navigate("/")}
+          className="absolute left-0"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+
+        {/* Centered title */}
+        <h1 className={isMobile ? "text-xl font-bold" : "text-2xl font-bold"}>
+          {taskList?.title || "Task List"}
+        </h1>
+
+        {/* Edit button */}
         <Button
           variant="ghost"
           aria-label="Edit task list"
           size={isMobile ? "sm" : "md"}
           onPress={() => navigate(`/edit-task-list/${listId}`)}
+          className="absolute right-0"
         >
           <Edit className="h-4 w-4" />
         </Button>
+
       </div>
 
       {/* Progress */}
