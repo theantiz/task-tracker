@@ -18,6 +18,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppContext } from "../AppProvider";
 import { TaskStatus } from "../domain/TaskStatus";
+import Task from "../domain/Task";
 
 const TasksScreen: React.FC = () => {
   const { state, api } = useAppContext();
@@ -58,6 +59,18 @@ const TasksScreen: React.FC = () => {
     const closed = tasks.filter(t => t.status === TaskStatus.CLOSED).length;
     return (closed / tasks.length) * 100;
   }, [tasks]);
+
+  const toggleStatus = async (task: Task) => {
+    if (!listId || !task.id) return;
+
+    await api.updateTask(listId, task.id, {
+      ...task,
+      status:
+        task.status === TaskStatus.CLOSED
+          ? TaskStatus.OPEN
+          : TaskStatus.CLOSED,
+    });
+  };
 
   if (isLoading) return <Spinner className="mt-10" />;
 
@@ -103,7 +116,10 @@ const TasksScreen: React.FC = () => {
             <Card key={task.id}>
               <CardBody className="p-3">
                 <div className="flex justify-between items-center">
-                  <Checkbox isSelected={task.status === TaskStatus.CLOSED} />
+                  <Checkbox
+                    isSelected={task.status === TaskStatus.CLOSED}
+                    onValueChange={() => toggleStatus(task)}
+                  />
                   <span className="text-sm font-semibold">{task.title}</span>
                 </div>
 
@@ -153,6 +169,7 @@ const TasksScreen: React.FC = () => {
                 <TableCell>
                   <Checkbox
                     isSelected={task.status === TaskStatus.CLOSED}
+                    onValueChange={() => toggleStatus(task)}
                   />
                 </TableCell>
                 <TableCell>{task.title}</TableCell>

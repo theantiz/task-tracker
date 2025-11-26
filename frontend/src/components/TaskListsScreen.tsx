@@ -15,9 +15,11 @@ const TaskListScreen: React.FC = () => {
   }, [state]);
 
   return (
-    <div className="w-full max-w-md sm:max-w-lg md:max-w-xl mx-auto p-6">
+    <div className="w-full max-w-md sm:max-w-lg md:max-w-xl p-6">
 
-      <h1 className="text-2xl font-bold mb-6">My Task Lists</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center w-full">
+  My Task Lists
+</h1>
 
       <Button
         onPress={() => navigate("/new-task-list")}
@@ -32,8 +34,8 @@ const TaskListScreen: React.FC = () => {
         <Card
           key={list.id}
           className="mb-4 w-full cursor-pointer"
-          role="button"
-          onClick={() => navigate(`/task-lists/${list.id}`)}
+          isPressable
+          onPress={() => navigate(`/task-lists/${list.id}`)}
         >
           <CardBody>
             <div className="flex items-center">
