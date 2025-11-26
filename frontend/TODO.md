@@ -1,4 +1,2 @@
-- [ ] Update TasksScreen.tsx: Change mobile breakpoint to 480px, add aria-labels to icon-only buttons, reduce spacing and padding on mobile, center header, make buttons smaller, ensure no overflow.
-- [ ] Update TaskListsScreen.tsx: Replace deprecated onPress with onClick, remove isPressable, add aria-labels if missing, improve mobile layout for <480px.
-- [ ] Update CreateUpdateTaskScreen.tsx: Add aria-labels to icon-only buttons if any, improve mobile layout for <480px.
-- [ ] Test on <480px screens.
+- [x] Update header container className to "relative mb-4"
+- [x] Update h1 className to include absolute centering classes for perfect horizontal and vertical centering

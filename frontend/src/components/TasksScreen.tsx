@@ -168,7 +168,7 @@ const TasksScreen: React.FC = () => {
     <div className="w-full max-w-3xl mx-auto px-4 py-4">
 
       {/* Header */}
-      <div className="flex justify-center items-center mb-4 relative overflow-hidden">
+      <div className="relative mb-4">
 
         {/* Back button */}
         <Button
@@ -181,7 +181,7 @@ const TasksScreen: React.FC = () => {
         </Button>
 
         {/* Centered title */}
-        <h1 className={isMobile ? "text-xl font-bold truncate" : "text-2xl font-bold truncate"}>
+        <h1 className={isMobile ? "absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xl font-bold truncate" : "absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl font-bold truncate"}>
           {taskList?.title || "Task List"}
         </h1>
 

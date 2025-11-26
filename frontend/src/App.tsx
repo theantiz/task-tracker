@@ -4,6 +4,8 @@ import TaskLists from "./components/TaskListsScreen";
 import CreateUpdateTaskListScreen from "./components/CreateUpdateTaskListScreen";
 import TaskListScreen from "./components/TasksScreen";
 import CreateUpdateTaskScreen from "./components/CreateUpdateTaskScreen";
+import Footer from "./components/Footer";
+
 
 function App() {
   return (
@@ -25,6 +27,7 @@ function App() {
           element={<CreateUpdateTaskScreen />}
         />
       </Routes>
+      <Footer />
     </BrowserRouter>
   );
 }
