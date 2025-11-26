@@ -42,13 +42,11 @@ const TaskListScreen: React.FC = () => {
         return (
           <Card
             key={list.id}
-            isPressable
-            onPress={() => handleSelectTaskList(list.id)}
             className="mb-4 w-full"
             role="button"
             aria-label={`Select task list: ${list.title}`}
           >
-            <CardBody>
+            <CardBody onClick={() => handleSelectTaskList(list.id)} className="cursor-pointer">
               <div className="flex items-center">
                 <List
                   size={20}

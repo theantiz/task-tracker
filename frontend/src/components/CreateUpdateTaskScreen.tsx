@@ -140,7 +140,7 @@ const CreateUpdateTaskScreen: React.FC = () => {
   }
 
   return (
-    <div className="p-4 max-w-md mx-auto">
+    <div className="p-4 w-full max-w-md mx-auto sm:max-w-lg md:max-w-xl">
       <div className="flex items-center space-x-4 mb-6">
         <Button 
           variant="ghost"
@@ -177,21 +177,22 @@ const CreateUpdateTaskScreen: React.FC = () => {
           defaultValue={dueDate ? parseDate(formatDateForPicker(dueDate)!) : undefined}
           onChange={(newDate) => handleDateChange(newDate ? new Date(newDate.toString()) : null)}
         />
-        <Spacer y={4} />
-        <div className="flex justify-between mx-auto gap-2">
+        <Spacer y={2} />
+        <div className="flex flex-col justify-center gap-1">
           {Object.values(TaskPriority).map((p) => (
             <Chip
               key={p}
               color={priority === p ? "primary" : "default"}
               variant={priority === p ? "solid" : "faded"}
               onClick={() => setPriority(p)}
-              className="cursor-pointer"
+              className="cursor-pointer text-xs"
+              size="sm"
             >
               {p} Priority
             </Chip>
           ))}
         </div>
-        <Spacer y={4} />
+        <Spacer y={2} />
         <Button 
           type="submit" 
           color="primary" 
