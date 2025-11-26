@@ -9,9 +9,12 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <HeroUIProvider>
       <AppProvider>
-        <div className="dark text-foreground bg-background min-h-screen w-full flex flex-col items-center pt-4">
+
+        {/* FIXED: no flex, no centering */}
+        <div className="dark text-foreground bg-background min-h-screen w-full">
           <App />
         </div>
+
       </AppProvider>
     </HeroUIProvider>
   </StrictMode>
