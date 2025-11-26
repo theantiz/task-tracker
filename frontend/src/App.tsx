@@ -12,7 +12,7 @@ function App() {
       <div className="min-h-screen flex flex-col">
 
         {/* Main content wrapper */}
-        <main className="flex-1 flex justify-center">
+        <main className="flex-1 flex justify-center items-center">
           <Routes>
             <Route path="/" element={<TaskLists />} />
             <Route path="/new-task-list" element={<CreateUpdateTaskListScreen />} />

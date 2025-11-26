@@ -15,15 +15,15 @@ const TaskListScreen: React.FC = () => {
   }, [state]);
 
   return (
-    <div className="w-full max-w-md sm:max-w-lg md:max-w-xl mx-auto p-4">
+    <div className="w-full max-w-md sm:max-w-lg md:max-w-xl mx-auto p-6">
 
-      <h1 className="text-2xl font-bold mb-4">My Task Lists</h1>
+      <h1 className="text-2xl font-bold mb-6">My Task Lists</h1>
 
       <Button
         onPress={() => navigate("/new-task-list")}
         color="primary"
         startContent={<Plus size={20} />}
-        className="w-full mb-4"
+        className="w-full mb-6"
       >
         Create New Task List
       </Button>
