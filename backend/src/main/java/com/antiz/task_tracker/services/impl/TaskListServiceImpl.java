@@ -4,6 +4,7 @@ import com.antiz.task_tracker.domain.entities.TaskList;
 import com.antiz.task_tracker.repository.TaskListRepository;
 import com.antiz.task_tracker.services.TaskListService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -48,6 +49,7 @@ public class TaskListServiceImpl implements TaskListService {
 
 
     //from GPT
+    @Transactional
     @Override
     public TaskList updateTaskList(UUID id, TaskList taskList)  {
 

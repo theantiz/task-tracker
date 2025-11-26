@@ -4,7 +4,9 @@ import com.antiz.task_tracker.domain.dto.TaskListDto;
 import com.antiz.task_tracker.domain.entities.TaskList;
 import com.antiz.task_tracker.mappers.TaskListMapper;
 import com.antiz.task_tracker.services.TaskListService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,10 +36,13 @@ public class TaskListController {
         return taskListMapper.toDto(createdTaskList);
     }
 
-    @GetMapping(path = "/{task_list_id}")
-    public Optional<TaskListDto> getTaskListById(@PathVariable("task_list_id") UUID taskListId) {
-        return taskListService.getTaskList(taskListId).map(taskListMapper::toDto);
+    @GetMapping("/{task_list_id}")
+    public TaskListDto getTaskListById(@PathVariable UUID task_list_id) {
+        return taskListService.getTaskList(task_list_id)
+                .map(taskListMapper::toDto)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task list not found"));
     }
+
 
     @PutMapping(path = "/{task_list_id}")
     public TaskListDto updateTaskList(@PathVariable("task_list_id") UUID tasklistId, @RequestBody TaskListDto taskListDto) {
