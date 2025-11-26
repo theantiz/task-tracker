@@ -3,8 +3,8 @@ import axios from "axios";
 import TaskList from "./domain/TaskList";
 import Task from "./domain/Task";
 
+// Hardcoded backend URL
 axios.defaults.baseURL = "https://task-tracker-joyy.onrender.com";
-
 
 interface AppState {
   taskLists: TaskList[];
@@ -43,6 +43,7 @@ const reducer = (state: AppState, action: Action): AppState => {
   switch (action.type) {
     case FETCH_TASKLISTS:
       return { ...state, taskLists: action.payload };
+
     case GET_TASKLIST:
       return {
         ...state,
@@ -52,8 +53,10 @@ const reducer = (state: AppState, action: Action): AppState => {
             )
           : [...state.taskLists, action.payload],
       };
+
     case CREATE_TASKLIST:
       return { ...state, taskLists: [...state.taskLists, action.payload] };
+
     case UPDATE_TASKLIST:
       return {
         ...state,
@@ -61,11 +64,13 @@ const reducer = (state: AppState, action: Action): AppState => {
           wl.id === action.payload.id ? action.payload : wl
         ),
       };
+
     case DELETE_TASKLIST:
       return {
         ...state,
         taskLists: state.taskLists.filter((wl) => wl.id !== action.payload),
       };
+
     case FETCH_TASKS:
       return {
         ...state,
@@ -74,6 +79,7 @@ const reducer = (state: AppState, action: Action): AppState => {
           [action.payload.taskListId]: action.payload.tasks,
         },
       };
+
     case CREATE_TASK:
       return {
         ...state,
@@ -85,16 +91,13 @@ const reducer = (state: AppState, action: Action): AppState => {
           ],
         },
       };
-    case GET_TASK: {
-      // Get existing tasks or initialize empty array
-      const existingTasks = state.tasks[action.payload.taskListId] || [];
 
-      // Check if task exists
+    case GET_TASK: {
+      const existingTasks = state.tasks[action.payload.taskListId] || [];
       const taskExists = existingTasks.some(
         (task) => task.id === action.payload.task.id
       );
 
-      // Either update existing task or add new one
       const updatedTasks = taskExists
         ? existingTasks.map((task) =>
             task.id === action.payload.task.id ? action.payload.task : task
@@ -109,6 +112,7 @@ const reducer = (state: AppState, action: Action): AppState => {
         },
       };
     }
+
     case UPDATE_TASK:
       return {
         ...state,
@@ -121,6 +125,7 @@ const reducer = (state: AppState, action: Action): AppState => {
           ),
         },
       };
+
     case DELETE_TASK:
       return {
         ...state,
@@ -131,6 +136,7 @@ const reducer = (state: AppState, action: Action): AppState => {
           ].filter((task) => task.id !== action.payload.taskId),
         },
       };
+
     default:
       return state;
   }
@@ -142,7 +148,6 @@ const initialState: AppState = {
   tasks: {},
 };
 
-// Context
 interface AppContextType {
   state: AppState;
   api: {
@@ -168,64 +173,32 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-// Provider component
+// Provider
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const jsonHeaders = {
-    headers: { "Content-Type": "application/json" },
-  };
+  const jsonHeaders = { headers: { "Content-Type": "application/json" } };
 
-  // API calls
   const api: AppContextType["api"] = {
     fetchTaskLists: async () => {
-      const response = await axios.get<TaskList[]>(
-        "/api/task-lists",
-        jsonHeaders
-      );
+      const response = await axios.get("/api/task-lists", jsonHeaders);
       dispatch({ type: FETCH_TASKLISTS, payload: response.data });
     },
-    getTaskList: async (id: string) => {
-      const response = await axios.get<TaskList>(
-        `/api/task-lists/${id}`,
-        jsonHeaders
-      );
+
+    getTaskList: async (id) => {
+      const response = await axios.get(`/api/task-lists/${id}`, jsonHeaders);
       dispatch({ type: GET_TASKLIST, payload: response.data });
     },
+
     createTaskList: async (taskList) => {
-      const response = await axios.post<TaskList>(
-        "/api/task-lists",
-        taskList,
-        jsonHeaders
-      );
+      const response = await axios.post("/api/task-lists", taskList, jsonHeaders);
       dispatch({ type: CREATE_TASKLIST, payload: response.data });
     },
-    getTask: async (taskListId: string, taskId: string) => {
-      const response = await axios.get<Task>(
-        `/api/task-lists/${taskListId}/tasks/${taskId}`,
-        jsonHeaders
-      );
-      dispatch({
-        type: GET_TASK,
-        payload: { taskListId, task: response.data },
-      });
-    },
-    updateTaskList: async (id, taskList) => {
-      const response = await axios.put<TaskList>(
-        `/api/task-lists/${id}`,
-        taskList,
-        jsonHeaders
-      );
-      dispatch({ type: UPDATE_TASKLIST, payload: response.data });
-    },
-    deleteTaskList: async (id) => {
-      await axios.delete(`/api/task-lists/${id}`, jsonHeaders);
-      dispatch({ type: DELETE_TASKLIST, payload: id });
-    },
+
     fetchTasks: async (taskListId) => {
-      const response = await axios.get<Task[]>(
+      const response = await axios.get(
         `/api/task-lists/${taskListId}/tasks`,
         jsonHeaders
       );
@@ -234,8 +207,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         payload: { taskListId, tasks: response.data },
       });
     },
+
+    getTask: async (taskListId, taskId) => {
+      const response = await axios.get(
+        `/api/task-lists/${taskListId}/tasks/${taskId}`,
+        jsonHeaders
+      );
+      dispatch({
+        type: GET_TASK,
+        payload: { taskListId, task: response.data },
+      });
+    },
+
     createTask: async (taskListId, task) => {
-      const response = await axios.post<Task>(
+      const response = await axios.post(
         `/api/task-lists/${taskListId}/tasks`,
         task,
         jsonHeaders
@@ -245,8 +230,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         payload: { taskListId, task: response.data },
       });
     },
+
+    updateTaskList: async (id, taskList) => {
+      const response = await axios.put(
+        `/api/task-lists/${id}`,
+        taskList,
+        jsonHeaders
+      );
+      dispatch({ type: UPDATE_TASKLIST, payload: response.data });
+    },
+
     updateTask: async (taskListId, taskId, task) => {
-      const response = await axios.put<Task>(
+      const response = await axios.put(
         `/api/task-lists/${taskListId}/tasks/${taskId}`,
         task,
         jsonHeaders
@@ -256,6 +251,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         payload: { taskListId, taskId, task: response.data },
       });
     },
+
+    deleteTaskList: async (id) => {
+      await axios.delete(`/api/task-lists/${id}`, jsonHeaders);
+      dispatch({ type: DELETE_TASKLIST, payload: id });
+    },
+
     deleteTask: async (taskListId, taskId) => {
       await axios.delete(
         `/api/task-lists/${taskListId}/tasks/${taskId}`,
@@ -274,11 +275,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-// Custom hook to use the context
-export const useAppContext = (): AppContextType => {
+export const useAppContext = () => {
   const context = useContext(AppContext);
-  if (context === undefined) {
-    throw new Error("useAppContext must be used within an AppProvider");
-  }
+  if (!context) throw new Error("useAppContext must be used inside provider");
   return context;
 };
