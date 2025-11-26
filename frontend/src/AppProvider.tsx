@@ -3,6 +3,9 @@ import axios from "axios";
 import TaskList from "./domain/TaskList";
 import Task from "./domain/Task";
 
+axios.defaults.baseURL = "https://task-tracker-joyy.onrender.com";
+
+
 interface AppState {
   taskLists: TaskList[];
   tasks: { [taskListId: string]: Task[] };
