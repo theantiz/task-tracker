@@ -168,20 +168,20 @@ const TasksScreen: React.FC = () => {
     <div className="w-full max-w-3xl mx-auto px-4 py-4">
 
       {/* Header */}
-      <div className="flex justify-center mb-4 relative">
+      <div className="flex justify-center items-center mb-4 relative overflow-hidden">
 
         {/* Back button */}
         <Button
           variant="ghost"
           aria-label="Go back"
           onPress={() => navigate("/")}
-          className="absolute left-0"
+          className="absolute left-0 flex-shrink-0"
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
 
         {/* Centered title */}
-        <h1 className={isMobile ? "text-xl font-bold" : "text-2xl font-bold"}>
+        <h1 className={isMobile ? "text-xl font-bold truncate" : "text-2xl font-bold truncate"}>
           {taskList?.title || "Task List"}
         </h1>
 
@@ -191,7 +191,7 @@ const TasksScreen: React.FC = () => {
           aria-label="Edit task list"
           size={isMobile ? "sm" : "md"}
           onPress={() => navigate(`/edit-task-list/${listId}`)}
-          className="absolute right-0"
+          className="absolute right-0 flex-shrink-0"
         >
           <Edit className="h-4 w-4" />
         </Button>
