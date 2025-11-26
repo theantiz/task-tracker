@@ -17,6 +17,7 @@ const CreateUpdateTaskScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdate, setIsUpdate] = useState(false);
   const [error, setError] = useState("");
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
@@ -32,27 +33,17 @@ const CreateUpdateTaskScreen: React.FC = () => {
       }
 
       setIsLoading(true);
+
       try {
-        console.log("Loading initial data...");
-        
-        // First ensure we have the task list
         if (!state.taskLists.find(tl => tl.id === listId)) {
           await api.getTaskList(listId);
         }
 
-        // Load the individual task
-        const taskResponse = await api.getTask(listId, taskId);
-        console.log("Task loaded:", taskResponse);
-        
-        // Check state after loading
-        console.log("Current state after load:", state);
-        
-        // Get task from state
+        await api.getTask(listId, taskId);
+
         const task = state.tasks[listId]?.find(t => t.id === taskId);
-        console.log("Found task in state:", task);
 
         if (task) {
-          console.log("Setting form values with task:", task);
           setTitle(task.title);
           setDescription(task.description || "");
           setDueDate(task.dueDate ? new Date(task.dueDate) : undefined);
@@ -61,10 +52,9 @@ const CreateUpdateTaskScreen: React.FC = () => {
         }
 
         setIsUpdate(true);
-      } catch (error) {
-        console.error("Error loading task:", error);
-        if (axios.isAxiosError(error)) {
-          setError(error.response?.data?.message || error.message);
+      } catch (err) {
+        if (axios.isAxiosError(err)) {
+          setError(err.response?.data?.message || err.message);
         } else {
           setError("An unknown error occurred");
         }
@@ -75,23 +65,6 @@ const CreateUpdateTaskScreen: React.FC = () => {
 
     loadInitialData();
   }, [listId, taskId]);
-
-  // Watch for task updates in state
-  useEffect(() => {
-    if (listId && taskId && state.tasks[listId]) {
-      const task = state.tasks[listId].find(t => t.id === taskId);
-      console.log("State updated, current task:", task);
-      
-      if (task) {
-        console.log("Updating form with task from state update:", task);
-        setTitle(task.title);
-        setDescription(task.description || "");
-        setDueDate(task.dueDate ? new Date(task.dueDate) : undefined);
-        setPriority(task.priority || TaskPriority.MEDIUM);
-        setStatus(task.status);
-      }
-    }
-  }, [listId, taskId, state.tasks]);
 
   const createUpdateTask = async () => {
     try {
@@ -132,28 +105,36 @@ const CreateUpdateTaskScreen: React.FC = () => {
 
   const formatDateForPicker = (date: Date | undefined) => {
     if (!date) return undefined;
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split("T")[0];
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  if (isLoading) return <div className="text-center mt-10">Loading...</div>;
 
   return (
-    <div className="p-4 w-full max-w-md mx-auto sm:max-w-lg md:max-w-xl">
-      <div className="flex items-center space-x-4 mb-6">
-        <Button 
+    <div className="w-full max-w-md mx-auto p-4">
+
+      {/* Centered Header */}
+      <div className="relative mb-6 flex items-center">
+
+        {/* Back button */}
+        <Button
           variant="ghost"
+          className="absolute left-0"
           aria-label="Go back"
-          onClick={() => navigate(`/task-lists/${listId}`)}
+          onPress={() => navigate(`/task-lists/${listId}`)}
         >
           <ArrowLeft size={20} />
         </Button>
-        <h1 className="text-2xl font-bold">
+
+        {/* Title */}
+        <h1 className="text-xl font-bold mx-auto">
           {isUpdate ? "Update Task" : "Create Task"}
         </h1>
       </div>
-      {error && <Card className="mb-4 p-4 text-red-500">{error}</Card>}
+
+      {/* Error */}
+      {error && <Card className="mb-3 p-4 text-red-500">{error}</Card>}
+
       <form onSubmit={(e) => e.preventDefault()}>
         <Input
           label="Title"
@@ -163,22 +144,35 @@ const CreateUpdateTaskScreen: React.FC = () => {
           required
           fullWidth
         />
+
         <Spacer y={1} />
+
         <Textarea
           label="Description"
-          placeholder="Enter task description (optional)"
+          placeholder="Enter task description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           fullWidth
         />
+
         <Spacer y={1} />
+
         <DatePicker
           label="Due date (optional)"
-          defaultValue={dueDate ? parseDate(formatDateForPicker(dueDate)!) : undefined}
-          onChange={(newDate) => handleDateChange(newDate ? new Date(newDate.toString()) : null)}
+          defaultValue={
+            dueDate ? parseDate(formatDateForPicker(dueDate)!) : undefined
+          }
+          onChange={(newDate) =>
+            handleDateChange(
+              newDate ? new Date(newDate.toString()) : null
+            )
+          }
         />
+
         <Spacer y={2} />
-        <div className="flex flex-col justify-center gap-1">
+
+        {/* Priority */}
+        <div className="flex flex-col gap-1">
           {Object.values(TaskPriority).map((p) => (
             <Chip
               key={p}
@@ -192,13 +186,10 @@ const CreateUpdateTaskScreen: React.FC = () => {
             </Chip>
           ))}
         </div>
+
         <Spacer y={2} />
-        <Button 
-          type="submit" 
-          color="primary" 
-          onClick={createUpdateTask}
-          fullWidth
-        >
+
+        <Button fullWidth color="primary" onPress={createUpdateTask}>
           {isUpdate ? "Update Task" : "Create Task"}
         </Button>
       </form>

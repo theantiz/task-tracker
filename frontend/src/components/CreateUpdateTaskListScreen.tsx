@@ -7,42 +7,31 @@ import axios from "axios";
 
 const CreateUpdateTaskListScreen: React.FC = () => {
   const { state, api } = useAppContext();
-
   const { listId } = useParams();
+  const navigate = useNavigate();
 
   const [isUpdate, setIsUpdate] = useState(false);
   const [error, setError] = useState("");
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("" as string | undefined);
-
-  // Get a handle on the router
-  const navigate = useNavigate();
+  const [description, setDescription] = useState<string | undefined>("");
 
   const findTaskList = (taskListId: string) => {
-    const filteredTaskLists = state.taskLists.filter(
-      (tl) => taskListId == tl.id
-    );
-    if (filteredTaskLists.length === 1) {
-      return filteredTaskLists[0];
-    }
-    return null;
+    const filtered = state.taskLists.filter((tl) => taskListId === tl.id);
+    return filtered.length === 1 ? filtered[0] : null;
   };
 
   const populateTaskList = (taskListId: string) => {
     const taskList = findTaskList(taskListId);
-    if (null != taskList) {
-      console.log("FOUND TASK LIST");
+    if (taskList) {
       setTitle(taskList.title);
-      setDescription(taskList.description);
+      setDescription(taskList.description || "");
       setIsUpdate(true);
     }
   };
 
   useEffect(() => {
-    if (null != listId) {
-      console.log(`ID is ${listId}`);
-      if (null == state.taskLists) {
-        console.log("Fetching task lists");
+    if (listId) {
+      if (!state.taskLists) {
         api.fetchTaskLists().then(() => populateTaskList(listId));
       } else {
         populateTaskList(listId);
@@ -52,26 +41,24 @@ const CreateUpdateTaskListScreen: React.FC = () => {
 
   const createUpdateTaskList = async () => {
     try {
-      if (isUpdate && null != listId) {
+      if (isUpdate && listId) {
         await api.updateTaskList(listId, {
           id: listId,
-          title: title,
-          description: description,
+          title,
+          description,
           count: undefined,
           progress: undefined,
           tasks: undefined,
         });
       } else {
         await api.createTaskList({
-          title: title,
-          description: description,
+          title,
+          description,
           count: undefined,
           progress: undefined,
           tasks: undefined,
         });
       }
-
-      // Success navigate to home
       navigate("/");
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -82,22 +69,32 @@ const CreateUpdateTaskListScreen: React.FC = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-  };
-
   return (
-    <div className="p-4 max-w-md mx-auto">
-      <div className="flex items-center space-x-4 mb-6">
-        <Button onClick={() => navigate("/")}>
+    <div className="w-full max-w-md mx-auto p-4">
+
+      {/* Centered header */}
+      <div className="relative mb-6 flex items-center">
+
+        {/* Back button */}
+        <Button
+          variant="ghost"
+          className="absolute left-0"
+          onPress={() => navigate("/")}
+        >
           <ArrowLeft size={20} />
         </Button>
-        <h1 className="text-2xl font-bold">
+
+        {/* Title */}
+        <h1 className="text-xl font-bold mx-auto">
           {isUpdate ? "Update Task List" : "Create Task List"}
         </h1>
       </div>
-      {error.length > 0 && <Card>{error}</Card>}
-      <form onSubmit={handleSubmit}>
+
+      {/* Error */}
+      {error && <Card className="p-3 mb-4 text-red-500">{error}</Card>}
+
+      {/* Form */}
+      <form onSubmit={(e) => e.preventDefault()}>
         <Input
           label="Title"
           placeholder="Enter task list title"
@@ -106,7 +103,9 @@ const CreateUpdateTaskListScreen: React.FC = () => {
           required
           fullWidth
         />
+
         <Spacer y={1} />
+
         <Textarea
           label="Description"
           placeholder="Enter task list description (optional)"
@@ -114,8 +113,10 @@ const CreateUpdateTaskListScreen: React.FC = () => {
           onChange={(e) => setDescription(e.target.value)}
           fullWidth
         />
-        <Spacer y={1} />
-        <Button type="submit" color="primary" onClick={createUpdateTaskList}>
+
+        <Spacer y={2} />
+
+        <Button color="primary" fullWidth onPress={createUpdateTaskList}>
           {isUpdate ? "Update Task List" : "Create Task List"}
         </Button>
       </form>

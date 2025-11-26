@@ -26,26 +26,20 @@ const TasksScreen: React.FC = () => {
   const { state, api } = useAppContext();
   const { listId } = useParams<{ listId: string }>();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(true);
+
   const [isMobile, setIsMobile] = useState(window.innerWidth < 480);
+  const [isLoading, setIsLoading] = useState(true);
 
   const taskList = state.taskLists.find((tl) => tl.id === listId);
 
-  // -----------------------------
-  // Load TaskList & Tasks
-  // -----------------------------
   useEffect(() => {
     const load = async () => {
       if (!listId) return;
-
       setIsLoading(true);
+
       try {
-        if (!taskList) {
-          await api.getTaskList(listId);
-        }
+        if (!taskList) await api.getTaskList(listId);
         await api.fetchTasks(listId);
-      } catch (e) {
-        console.log("Tasks fetch error", e);
       } finally {
         setIsLoading(false);
       }
@@ -54,243 +48,158 @@ const TasksScreen: React.FC = () => {
     load();
   }, [listId]);
 
-  // -----------------------------
-  // Mobile detection resize
-  // -----------------------------
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 480);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    const r = () => setIsMobile(window.innerWidth < 480);
+    window.addEventListener("resize", r);
+    return () => window.removeEventListener("resize", r);
   }, []);
-
-  // -----------------------------
-  // Toggle task status
-  // -----------------------------
-  const toggleStatus = async (task: Task) => {
-    if (!listId || !task.id) return;
-
-    const updated: Task = {
-      ...task,
-      status:
-        task.status === TaskStatus.CLOSED
-          ? TaskStatus.OPEN
-          : TaskStatus.CLOSED,
-    };
-
-    await api.updateTask(listId, task.id, updated);
-    await api.fetchTasks(listId);
-  };
-
-  // -----------------------------
-  // Delete TaskList
-  // -----------------------------
-  const deleteTaskList = async () => {
-    if (!listId) return;
-    await api.deleteTaskList(listId);
-    navigate("/");
-  };
-
-  // -----------------------------
-  // Completion %
-  // -----------------------------
-  const completionPercentage = useMemo(() => {
-    const tasks = state.tasks[listId || ""];
-    if (!tasks || tasks.length === 0) return 0;
-
-    const closed = tasks.filter((t) => t.status === TaskStatus.CLOSED).length;
-    return (closed / tasks.length) * 100;
-  }, [state.tasks, listId]);
 
   const tasks = listId ? state.tasks[listId] || [] : [];
 
-  // -----------------------------
-  // Table rows for desktop
-  // -----------------------------
-  const tableRows = () =>
-    tasks.map((task) => (
-      <TableRow key={task.id}>
-        <TableCell>
-          <Checkbox
-            aria-label="Toggle task completion"
-            isSelected={task.status === TaskStatus.CLOSED}
-            onValueChange={() => toggleStatus(task)}
-          />
-        </TableCell>
+  const completion = useMemo(() => {
+    if (!tasks.length) return 0;
+    const closed = tasks.filter(t => t.status === TaskStatus.CLOSED).length;
+    return (closed / tasks.length) * 100;
+  }, [tasks]);
 
-        <TableCell>{task.title}</TableCell>
-        <TableCell>{task.priority}</TableCell>
-
-        <TableCell>
-          {task.dueDate && (
-            <DateInput
-              isDisabled
-              aria-label="Due date"
-              defaultValue={parseDate(
-                new Date(task.dueDate).toISOString().split("T")[0]
-              )}
-            />
-          )}
-        </TableCell>
-
-        <TableCell>
-          <div className="flex space-x-2">
-            <Button
-              variant="ghost"
-              aria-label="Edit task"
-              onPress={() =>
-                navigate(`/task-lists/${listId}/edit-task/${task.id}`)
-              }
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
-
-            <Button
-              variant="ghost"
-              aria-label="Delete task"
-              onPress={() => task.id && api.deleteTask(listId!, task.id)}
-            >
-              <Trash className="h-4 w-4" />
-            </Button>
-          </div>
-        </TableCell>
-      </TableRow>
-    ));
-
-  // -----------------------------
-  // Loading
-  // -----------------------------
   if (isLoading) return <Spinner className="mt-10" />;
 
-  // -----------------------------
-  // UI
-  // -----------------------------
   return (
-    <div className="w-full max-w-3xl mx-auto px-4 py-4">
+    <div className="w-full max-w-md sm:max-w-lg md:max-w-2xl mx-auto px-4 py-4">
 
       {/* Header */}
-      <div className="relative mb-4">
+      <div className="relative flex items-center justify-center mb-4">
 
-        {/* Back button */}
         <Button
           variant="ghost"
-          aria-label="Go back"
+          className="absolute left-0"
           onPress={() => navigate("/")}
-          className="absolute left-0 flex-shrink-0"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft />
         </Button>
 
-        {/* Centered title */}
-        <h1 className={isMobile ? "absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xl font-bold truncate" : "absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl font-bold truncate"}>
-          {taskList?.title || "Task List"}
-        </h1>
+        <h1 className="text-xl sm:text-2xl font-bold">{taskList?.title}</h1>
 
-        {/* Edit button */}
         <Button
           variant="ghost"
-          aria-label="Edit task list"
-          size={isMobile ? "sm" : "md"}
+          className="absolute right-0"
           onPress={() => navigate(`/edit-task-list/${listId}`)}
-          className="absolute right-0 flex-shrink-0"
         >
-          <Edit className="h-4 w-4" />
+          <Edit />
         </Button>
-
       </div>
 
-      {/* Progress */}
-      <Progress value={completionPercentage} className="mb-4" />
+      <Progress value={completion} className="mb-4" />
 
-      {/* Add Task */}
       <Button
         className="w-full mb-4"
-        size={isMobile ? "sm" : "md"}
         onPress={() => navigate(`/task-lists/${listId}/new-task`)}
-        startContent={<Plus className="h-4 w-4" />}
+        startContent={<Plus />}
       >
         Add Task
       </Button>
 
-      {/* Mobile View */}
+      {/* MOBILE CARD VIEW */}
       {isMobile ? (
         <div className="space-y-3">
-          {tasks.map((task) => (
-            <Card key={task.id} className="w-full">
-              <CardBody className="p-4">
-
-                <div className="flex justify-between items-center mb-2">
-                  <Checkbox
-                    aria-label="Toggle task completion"
-                    isSelected={task.status === TaskStatus.CLOSED}
-                    onValueChange={() => toggleStatus(task)}
-                  />
-
-                  <span className="font-semibold text-sm break-words">{task.title}</span>
+          {tasks.map(task => (
+            <Card key={task.id}>
+              <CardBody className="p-3">
+                <div className="flex justify-between items-center">
+                  <Checkbox isSelected={task.status === TaskStatus.CLOSED} />
+                  <span className="text-sm font-semibold">{task.title}</span>
                 </div>
 
-                <div className="text-xs text-gray-400 mb-2">
-                  Priority: {task.priority}
-                </div>
+                <p className="text-xs text-gray-400">Priority: {task.priority}</p>
 
                 {task.dueDate && (
-                  <div className="text-xs text-gray-400 mb-2">
+                  <p className="text-xs text-gray-400">
                     Due: {new Date(task.dueDate).toLocaleDateString()}
-                  </div>
+                  </p>
                 )}
 
-                <div className="flex space-x-2">
+                <div className="flex space-x-2 mt-2">
                   <Button
-                    variant="ghost"
                     size="sm"
-                    aria-label="Edit task"
+                    variant="ghost"
                     onPress={() =>
                       navigate(`/task-lists/${listId}/edit-task/${task.id}`)
                     }
                   >
-                    <Edit className="h-4 w-4" /> Edit
+                    <Edit size={16} /> Edit
                   </Button>
 
                   <Button
-                    variant="ghost"
                     size="sm"
-                    aria-label="Delete task"
-                    onPress={() => task.id && api.deleteTask(listId!, task.id)}
+                    variant="ghost"
+                    onPress={() => api.deleteTask(listId!, task.id!)}
                   >
-                    <Trash className="h-4 w-4" /> Delete
+                    <Trash size={16} /> Delete
                   </Button>
                 </div>
-
               </CardBody>
             </Card>
           ))}
         </div>
       ) : (
-        <div className="border rounded-xl overflow-hidden shadow">
-          <Table aria-label="Tasks table">{/* @ts-ignore */}
-            <TableHeader>
-              <TableColumn>Done</TableColumn>
-              <TableColumn>Title</TableColumn>
-              <TableColumn>Priority</TableColumn>
-              <TableColumn>Due Date</TableColumn>
-              <TableColumn>Actions</TableColumn>
-            </TableHeader>
-            <TableBody>{tableRows()}</TableBody>
-          </Table>
-        </div>
+        <Table>
+          <TableHeader>
+            <TableColumn>Done</TableColumn>
+            <TableColumn>Title</TableColumn>
+            <TableColumn>Priority</TableColumn>
+            <TableColumn>Due</TableColumn>
+            <TableColumn>Actions</TableColumn>
+          </TableHeader>
+          <TableBody>
+            {tasks.map(task => (
+              <TableRow key={task.id}>
+                <TableCell>
+                  <Checkbox
+                    isSelected={task.status === TaskStatus.CLOSED}
+                  />
+                </TableCell>
+                <TableCell>{task.title}</TableCell>
+                <TableCell>{task.priority}</TableCell>
+                <TableCell>
+                  {task.dueDate &&
+                    new Date(task.dueDate).toLocaleDateString()}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="ghost"
+                    onPress={() =>
+                      navigate(`/task-lists/${listId}/edit-task/${task.id}`)
+                    }
+                  >
+                    <Edit />
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    onPress={() => api.deleteTask(listId!, task.id!)}
+                  >
+                    <Trash />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       )}
 
       <Spacer y={4} />
 
-      <div className="flex justify-end">
-        <Button
-          color="danger"
-          size={isMobile ? "sm" : "md"}
-          onPress={deleteTaskList}
-          startContent={<Minus />}
-        >
-          Delete TaskList
-        </Button>
-      </div>
+      <Button
+        color="danger"
+        className="w-full sm:w-auto"
+        startContent={<Minus />}
+        onPress={() => {
+          api.deleteTaskList(listId!);
+          navigate("/");
+        }}
+      >
+        Delete TaskList
+      </Button>
     </div>
   );
 };
