@@ -1,10 +1,8 @@
-import { parseDate } from "@internationalized/date";
 import {
   Button,
   Card,
   CardBody,
   Checkbox,
-  DateInput,
   Progress,
   Spacer,
   Table,
@@ -19,7 +17,6 @@ import { ArrowLeft, Edit, Minus, Plus, Trash } from "lucide-react";
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppContext } from "../AppProvider";
-import Task from "../domain/Task";
 import { TaskStatus } from "../domain/TaskStatus";
 
 const TasksScreen: React.FC = () => {
