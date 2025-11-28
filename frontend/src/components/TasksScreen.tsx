@@ -58,7 +58,7 @@ const TasksScreen: React.FC = () => {
       if (!a.dueDate && !b.dueDate) return 0;
       if (!a.dueDate) return 1;
       if (!b.dueDate) return -1;
-      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+      return a.dueDate.getTime() - b.dueDate.getTime();
     });
   }, [listId, state.tasks]);
 
@@ -68,8 +68,9 @@ const TasksScreen: React.FC = () => {
     return (closed / tasks.length) * 100;
   }, [tasks]);
 
-  const formatDate = (date: string) => {
-    const d = new Date(date);
+  // FIXED FUNCTION: accepts Date OR string
+  const formatDate = (date: string | Date) => {
+    const d = date instanceof Date ? date : new Date(date);
     const day = String(d.getDate()).padStart(2, '0');
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const year = d.getFullYear();
