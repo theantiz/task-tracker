@@ -52,13 +52,29 @@ const TasksScreen: React.FC = () => {
     return () => window.removeEventListener("resize", r);
   }, []);
 
-  const tasks = listId ? state.tasks[listId] || [] : [];
+  const tasks = useMemo(() => {
+    const taskArray = listId ? state.tasks[listId] || [] : [];
+    return taskArray.sort((a, b) => {
+      if (!a.dueDate && !b.dueDate) return 0;
+      if (!a.dueDate) return 1;
+      if (!b.dueDate) return -1;
+      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+    });
+  }, [listId, state.tasks]);
 
   const completion = useMemo(() => {
     if (!tasks.length) return 0;
     const closed = tasks.filter(t => t.status === TaskStatus.CLOSED).length;
     return (closed / tasks.length) * 100;
   }, [tasks]);
+
+  const formatDate = (date: string) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
   const toggleStatus = async (task: Task) => {
     if (!listId || !task.id) return;
@@ -127,7 +143,7 @@ const TasksScreen: React.FC = () => {
 
                 {task.dueDate && (
                   <p className="text-xs text-gray-400">
-                    Due: {new Date(task.dueDate).toLocaleDateString()}
+                    Due: {formatDate(task.dueDate)}
                   </p>
                 )}
 
@@ -175,8 +191,7 @@ const TasksScreen: React.FC = () => {
                 <TableCell>{task.title}</TableCell>
                 <TableCell>{task.priority}</TableCell>
                 <TableCell>
-                  {task.dueDate &&
-                    new Date(task.dueDate).toLocaleDateString()}
+                  {task.dueDate && formatDate(task.dueDate)}
                 </TableCell>
                 <TableCell>
                   <Button

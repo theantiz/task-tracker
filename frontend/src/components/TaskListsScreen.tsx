@@ -14,12 +14,13 @@ const TaskListScreen: React.FC = () => {
     }
   }, [state]);
 
+  const sortedTaskLists = [...state.taskLists].sort((a, b) => a.title.localeCompare(b.title));
+
   return (
     <div className="w-full max-w-md sm:max-w-lg md:max-w-xl p-6">
-
       <h1 className="text-2xl font-bold mb-6 text-center w-full">
-  My Task Lists
-</h1>
+        My Task Lists
+      </h1>
 
       <Button
         onPress={() => navigate("/new-task-list")}
@@ -30,7 +31,7 @@ const TaskListScreen: React.FC = () => {
         Create New Task List
       </Button>
 
-      {state.taskLists.map((list) => (
+      {sortedTaskLists.map((list) => (
         <Card
           key={list.id}
           className="mb-4 w-full cursor-pointer"
