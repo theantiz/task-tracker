@@ -1,2 +1,0 @@
-- [x] Update header container className to "relative mb-4"
-- [x] Update h1 className to include absolute centering classes for perfect horizontal and vertical centering
